@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0b120f">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-180.png">
-<title>Oficina do Celular • Gestão V5</title>
+<title>Oficina do Celular • Gestão V6</title>
 <style>
 :root{--bg:#f3f6f4;--card:#fff;--ink:#142019;--muted:#718078;--line:#e1e8e3;--green:#18a957;--green2:#08783c;--dark:#0b120f;--yellow:#d69500;--blue:#2f72cf;--red:#d94444;--purple:#7655c9}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer}
@@ -44,7 +44,7 @@
 </section>
 <section class="panel" style="margin-top:14px"><div class="head"><h2>Estoque de aparelhos</h2><span class="muted" id="count">0 itens</span></div>
 <div class="tools"><input id="search" class="search" placeholder="🔎 Modelo ou IMEI"><button class="pill active" onclick="setFiltro('Todos')">Todos</button><button class="pill" onclick="setFiltro('Aguardando reparo')">Aguardando</button><button class="pill" onclick="setFiltro('Em reparo')">Reparo</button><button class="pill" onclick="setFiltro('Pronto para venda')">Prontos</button><button class="pill" onclick="setFiltro('Vendido')">Vendidos</button></div><div id="stock"></div></section>
-<div class="footer">Oficina do Celular • Gestão V5 • preparado para instalar na tela inicial</div>
+<div class="footer">Oficina do Celular • Gestão V6 • preparado para instalar na tela inicial</div>
 </main>
 
 <section id="cadastro" class="cadastro"><div class="sheet">
@@ -89,9 +89,79 @@
 
 <script>
 const checkNames=['Liga / inicializa','Tela','Touch','Bateria','Carregamento','Rede / sinal','Wi‑Fi','Bluetooth','Câmeras','Áudio / microfone','Biometria / Face ID','Sensores','IMEI / conta verificados','Sem sinais de oxidação'];
-let data=JSON.parse(localStorage.getItem('oc_v3')||'[]'), filtro='Todos', photoData='';
+let data=[], filtro='Todos', photoData='';
+const DB_NAME='oficina_do_celular_db', DB_VERSION=1, STORE='aparelhos';
+let dbReady=null;
 const $=id=>document.getElementById(id), brl=v=>(Number(v)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}), num=v=>Number(String(v||'').replace(/[R$\s.]/g,'').replace(',','.'))||0;
-function persist(){localStorage.setItem('oc_v3',JSON.stringify(data))}
+
+function openDB(){
+  if(dbReady)return dbReady;
+  dbReady=new Promise((resolve,reject)=>{
+    if(!('indexedDB' in window)) return reject(new Error('IndexedDB indisponível'));
+    const req=indexedDB.open(DB_NAME,DB_VERSION);
+    req.onupgradeneeded=()=>{const d=req.result;if(!d.objectStoreNames.contains(STORE))d.createObjectStore(STORE,{keyPath:'id'});};
+    req.onsuccess=()=>resolve(req.result);
+    req.onerror=()=>reject(req.error||new Error('Falha ao abrir banco'));
+  });
+  return dbReady;
+}
+function idbGetAll(){
+  return openDB().then(db=>new Promise((resolve,reject)=>{
+    const tx=db.transaction(STORE,'readonly'), req=tx.objectStore(STORE).getAll();
+    req.onsuccess=()=>resolve(req.result||[]);
+    req.onerror=()=>reject(req.error);
+  }));
+}
+function idbPutAll(items){
+  return openDB().then(db=>new Promise((resolve,reject)=>{
+    const tx=db.transaction(STORE,'readwrite'), store=tx.objectStore(STORE);
+    items.forEach(item=>store.put(item));
+    tx.oncomplete=()=>resolve();
+    tx.onerror=()=>reject(tx.error);
+  }));
+}
+function idbClearAndPut(items){
+  return openDB().then(db=>new Promise((resolve,reject)=>{
+    const tx=db.transaction(STORE,'readwrite'), store=tx.objectStore(STORE);
+    store.clear();
+    items.forEach(item=>store.put(item));
+    tx.oncomplete=()=>resolve();
+    tx.onerror=()=>reject(tx.error);
+  }));
+}
+function idbDelete(id){
+  return openDB().then(db=>new Promise((resolve,reject)=>{
+    const tx=db.transaction(STORE,'readwrite');
+    tx.objectStore(STORE).delete(id);
+    tx.oncomplete=()=>resolve();
+    tx.onerror=()=>reject(tx.error);
+  }));
+}
+async function persist(){
+  try{
+    await idbClearAndPut(data);
+  }catch(e){
+    localStorage.setItem('oc_v3',JSON.stringify(data));
+  }
+}
+async function loadData(){
+  try{
+    const saved=await idbGetAll();
+    if(saved.length){
+      data=saved;
+      return;
+    }
+    const old=JSON.parse(localStorage.getItem('oc_v3')||'[]');
+    if(Array.isArray(old)&&old.length){
+      data=old;
+      await idbPutAll(data);
+      return;
+    }
+    data=[];
+  }catch(e){
+    try{data=JSON.parse(localStorage.getItem('oc_v3')||'[]')||[];}catch(_){data=[];}
+  }
+}
 function age(d){let a=Math.floor((Date.now()-new Date(d+'T12:00:00').getTime())/86400000);return Math.max(0,a)}
 function badge(s){return s==='Pronto para venda'?'bgreen':s==='Aguardando reparo'?'byellow':s==='Em reparo'?'bblue':s==='Problema'?'bred':''}
 function esc(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
@@ -101,8 +171,8 @@ function clearForm(){['id','modelo','imei','compra','pecas','outros','taxas','ve
 function openModal(){location.hash='cadastro'}
 function closeModal(){location.hash=''}
 function edit(id){let x=data.find(a=>a.id===id);if(!x)return;clearForm();$('title').textContent='Editar aparelho';$('delete').classList.remove('hidden');$('id').value=x.id;$('modelo').value=x.modelo;$('imei').value=x.imei;$('origem').value=x.origem;$('status').value=x.status;$('data').value=x.data;$('vendaInput').value=x.venda;$('compra').value=x.compra;$('pecas').value=x.pecas;$('outros').value=x.outros;$('taxas').value=x.taxas;$('defeito').value=x.defeito;$('acao').value=x.acao;photoData=x.photo||'';if(photoData)$('photoPreview').src=photoData;renderChecks(x.checks||[]);calc();location.hash='cadastro'}
-function save(){let checks=[...document.querySelectorAll('[data-check]')].map(c=>c.checked),x={id:$('id').value||Date.now().toString(),modelo:$('modelo').value.trim(),imei:$('imei').value.trim(),origem:$('origem').value,status:$('status').value,data:$('data').value||new Date().toISOString().slice(0,10),venda:num($('vendaInput').value),compra:num($('compra').value),pecas:num($('pecas').value),outros:num($('outros').value),taxas:num($('taxas').value),defeito:$('defeito').value.trim(),acao:$('acao').value.trim(),checks,photo:photoData};if(!x.modelo)return alert('Informe o modelo.');let i=data.findIndex(a=>a.id===x.id);if(i>=0)data[i]=x;else data.push(x);persist();location.hash='';renderAll()}
-function removeItem(){if(confirm('Excluir este aparelho?')){data=data.filter(x=>x.id!==$('id').value);persist();location.hash='';renderAll()}}
+async function save(){let checks=[...document.querySelectorAll('[data-check]')].map(c=>c.checked),x={id:$('id').value||Date.now().toString(),modelo:$('modelo').value.trim(),imei:$('imei').value.trim(),origem:$('origem').value,status:$('status').value,data:$('data').value||new Date().toISOString().slice(0,10),venda:num($('vendaInput').value),compra:num($('compra').value),pecas:num($('pecas').value),outros:num($('outros').value),taxas:num($('taxas').value),defeito:$('defeito').value.trim(),acao:$('acao').value.trim(),checks,photo:photoData};if(!x.modelo)return alert('Informe o modelo.');let i=data.findIndex(a=>a.id===x.id);if(i>=0)data[i]=x;else data.push(x);await persist();location.hash='';renderAll()}
+async function removeItem(){if(confirm('Excluir este aparelho?')){let id=$('id').value;data=data.filter(x=>x.id!==id);await idbDelete(id).catch(()=>persist());location.hash='';renderAll()}}
 function clearPhoto(){photoData='';$('photoPreview').removeAttribute('src');$('photo').value=''}
 $('photo').addEventListener('change',e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{let im=new Image();im.onload=()=>{let c=document.createElement('canvas'),max=700,scale=Math.min(1,max/Math.max(im.width,im.height));c.width=im.width*scale;c.height=im.height*scale;c.getContext('2d').drawImage(im,0,0,c.width,c.height);photoData=c.toDataURL('image/jpeg',.72);$('photoPreview').src=photoData};im.src=r.result};r.readAsDataURL(f)})
 ['compra','pecas','outros','taxas','vendaInput'].forEach(i=>$(i).addEventListener('input',calc));
@@ -111,10 +181,10 @@ function setFiltro(f){filtro=f;document.querySelectorAll('.pill').forEach(b=>b.c
 function renderStock(){let q=($('search').value||'').toLowerCase(),arr=data.filter(x=>(filtro==='Todos'||x.status===filtro)&&((x.modelo||'').toLowerCase().includes(q)||(x.imei||'').includes(q)));$('count').textContent=arr.length+' item'+(arr.length===1?'':'s');$('stock').innerHTML=arr.length?arr.map(x=>{let c=x.compra+x.pecas+x.outros+x.taxas,l=x.venda-c,photo=x.photo||'',days=age(x.data),ready=(x.checks||[]).filter(Boolean).length+'/'+checkNames.length;return `<div class="item" onclick="edit('${x.id}')"><div>${photo?`<img class="thumb" src="${photo}">`:'<div class="thumb"></div>'}</div><div><div class="itemTitle">${esc(x.modelo)}</div><div class="itemMeta">Custo ${brl(c)} • ${days} dia${days===1?'':'s'} em estoque • testes ${ready}</div><div class="badges"><span class="badge ${badge(x.status)}">${esc(x.status)}</span>${x.acao?`<span class="badge bp">↳ ${esc(x.acao)}</span>`:''}</div></div><div class="right"><div class="profit">${brl(l)}</div><div class="sale">lucro previsto</div></div></div>`}).join(''):'<div class="empty">Nenhum aparelho encontrado.</div>'}
 function renderAll(){let active=data.filter(x=>x.status!=='Vendido'),inv=active.reduce((s,x)=>s+x.compra+x.pecas+x.outros+x.taxas,0),sale=active.reduce((s,x)=>s+x.venda,0),profit=sale-inv;$('qtd').textContent=active.length;$('invest').textContent=brl(inv);$('venda').textContent=brl(sale);$('lucro').textContent=brl(profit);let a=active.filter(x=>x.status==='Aguardando reparo').length,r=active.filter(x=>x.status==='Em reparo').length,p=active.filter(x=>x.status==='Pronto para venda').length,x=active.filter(x=>x.status==='Problema').length;$('a').textContent=a+' aparelho'+(a===1?'':'s');$('r').textContent=r+' aparelho'+(r===1?'':'s');$('p').textContent=p+' aparelho'+(p===1?'':'s');$('x').textContent=x+' aparelho'+(x===1?'':'s');let pc=active.length?p/active.length*100:0;$('pct').textContent=pc.toFixed(0)+'%';$('bar').style.width=pc+'%';let tasks=active.filter(x=>x.acao).sort((a,b)=>age(b.data)-age(a.data)).slice(0,6);$('tasks').innerHTML=tasks.length?tasks.map(x=>`<div class="task"><i class="tdot"></i><div><b>${esc(x.modelo)}</b><span>${esc(x.acao)}</span><span class="age">${age(x.data)} dia${age(x.data)===1?'':'s'} em estoque</span></div></div>`).join(''):'<div class="empty">Nenhuma próxima ação cadastrada.</div>';renderStock()}
 function installHelp(){alert('No iPhone: abra o sistema pelo Safari → toque em Compartilhar → Adicionar à Tela de Início → Adicionar.\n\nDepois ele fica como um aplicativo na sua tela inicial.');}
-function backup(){let b=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='backup-oficina-v5.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+function backup(){let b=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='backup-oficina-v6.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
 $('photoBtn').addEventListener('click', function(e){e.preventDefault();document.getElementById('photo').click()});
 $('search').addEventListener('input', renderStock);
 if('serviceWorker' in navigator && location.protocol!=='file:'){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}
-renderAll();
+loadData().then(()=>renderAll());
 </script>
 </body></html>
