@@ -1,0 +1,14 @@
+{
+  "name": "Oficina do Celular - Gestão",
+  "short_name": "Oficina Celular",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f3f6f4",
+  "theme_color": "#0b120f",
+  "lang": "pt-BR",
+  "description": "Controle de aparelhos, reparos, custos e oportunidades da Oficina do Celular.",
+  "icons": [
+    {"src":"icon-180.png","sizes":"180x180","type":"image/png","purpose":"any maskable"},
+    {"src":"icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}
+  ]
+}
