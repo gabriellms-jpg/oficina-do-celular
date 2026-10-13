@@ -10,7 +10,7 @@
 <style>
 :root{--bg:#f3f6f4;--card:#fff;--ink:#142019;--muted:#718078;--line:#e1e8e3;--green:#18a957;--green2:#08783c;--dark:#0b120f;--yellow:#d69500;--blue:#2f72cf;--red:#d94444;--purple:#7655c9}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer}
-body.authLocked{overflow:hidden}body.authLocked>header,body.authLocked>main,body.authLocked>#cadastro{display:none!important}.loginScreen{position:fixed;inset:0;z-index:999;background:linear-gradient(135deg,#09100d,#17241c);display:grid;place-items:center;padding:20px}.loginCard{width:min(430px,100%);background:#fff;border-radius:24px;padding:24px;box-shadow:0 20px 60px #0006}.loginLogo{width:58px;height:58px;border-radius:17px;background:linear-gradient(135deg,#21c769,#08783c);display:grid;place-items:center;color:#fff;font-weight:900;font-size:20px;margin-bottom:16px}.loginCard h1{margin:0;font-size:23px}.loginCard p{color:var(--muted);font-size:12px;margin:7px 0 18px}.loginField{margin:10px 0}.loginField label{display:block;font-size:11px;font-weight:850;margin-bottom:5px}.loginField input{width:100%;border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff}.loginBtn{width:100%;margin-top:10px}.loginError{background:#fee3e3;color:#9e2828;border-radius:12px;padding:10px;font-size:11px;margin-top:10px;display:none}.userbar{display:flex;align-items:center;gap:8px}.useremail{font-size:10px;color:#b8c3bd;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.logoutBtn{border:1px solid #ffffff22;background:#ffffff0d;color:#fff;border-radius:12px;padding:9px 11px}.syncDot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#56d987;margin-right:5px}.syncText{font-size:9px;color:#aebbb3}
+body.authLocked{overflow:hidden}.loginScreen{position:fixed;inset:0;z-index:999;background:linear-gradient(135deg,#09100d,#17241c);display:grid;place-items:center;padding:20px}.loginCard{width:min(430px,100%);background:#fff;border-radius:24px;padding:24px;box-shadow:0 20px 60px #0006}.loginLogo{width:58px;height:58px;border-radius:17px;background:linear-gradient(135deg,#21c769,#08783c);display:grid;place-items:center;color:#fff;font-weight:900;font-size:20px;margin-bottom:16px}.loginCard h1{margin:0;font-size:23px}.loginCard p{color:var(--muted);font-size:12px;margin:7px 0 18px}.loginField{margin:10px 0}.loginField label{display:block;font-size:11px;font-weight:850;margin-bottom:5px}.loginField input{width:100%;border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff}.loginBtn{width:100%;margin-top:10px}.loginError{background:#fee3e3;color:#9e2828;border-radius:12px;padding:10px;font-size:11px;margin-top:10px;display:none}.userbar{display:flex;align-items:center;gap:8px}.useremail{font-size:10px;color:#b8c3bd;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.logoutBtn{border:1px solid #ffffff22;background:#ffffff0d;color:#fff;border-radius:12px;padding:9px 11px}.syncDot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#56d987;margin-right:5px}.syncText{font-size:9px;color:#aebbb3}
 .top{background:linear-gradient(135deg,#09100d,#17241c);color:#fff;padding:18px 18px 16px;position:sticky;top:0;z-index:20;box-shadow:0 4px 18px #0002}.toprow{display:flex;align-items:center;justify-content:space-between;max-width:1100px;margin:auto}.logo{display:flex;gap:10px;align-items:center}.mark{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#21c769,#08783c);display:grid;place-items:center;font-weight:900}.brand{font-weight:900;font-size:17px}.sub{font-size:11px;color:#aebbb3}.topbtn{border:1px solid #ffffff22;background:#ffffff0d;color:#fff;border-radius:12px;padding:9px 11px}
 .wrap{max-width:1100px;margin:auto;padding:18px}.hero{display:flex;justify-content:space-between;align-items:end;gap:12px;margin:2px 0 17px}.hero h1{margin:0;font-size:27px}.hero p{margin:5px 0 0;color:var(--muted);font-size:12px}.primary{background:var(--green);color:#fff;border:0;border-radius:13px;padding:12px 15px;font-weight:850;box-shadow:0 5px 14px #18a95735}.secondary{background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:11px 13px;font-weight:800}
 .metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.metric{background:var(--card);border:1px solid var(--line);border-radius:17px;padding:14px;box-shadow:0 3px 14px #15251b08}.metric small{color:var(--muted);font-size:11px}.metric strong{display:block;font-size:19px;margin-top:6px}.hint{color:var(--muted);font-size:10px;margin-top:3px}.green{color:var(--green2)}.red{color:var(--red)}
@@ -38,7 +38,7 @@ body.authLocked{overflow:hidden}body.authLocked>header,body.authLocked>main,body
     </form>
   </div>
 </div>
-<header class="top"><div class="toprow"><div class="logo"><div class="mark">OC</div><div><div class="brand">OFICINA DO CELULAR</div><div class="sub">Gestão de aparelhos • V10</div></div></div><div class="userbar"><button class="topbtn" type="button" onclick="testarFirebase()">☁ Testar Firebase</button><span id="syncStatus" class="syncText"><span class="syncDot"></span>Firebase</span><span id="userEmail" class="useremail"></span><button class="topbtn" onclick="backup()">↥ Backup</button><button class="topbtn" onclick="installHelp()">⌂ Instalar</button><button class="logoutBtn" onclick="logout()">Sair</button></div></div></header>
+<header class="top"><div class="toprow"><div class="logo"><div class="mark">OC</div><div><div class="brand">OFICINA DO CELULAR</div><div class="sub">Gestão de aparelhos • V12</div></div></div><div class="userbar"><button class="topbtn" type="button" onclick="testarFirebase()">☁ Testar Firebase</button><span id="syncStatus" class="syncText"><span class="syncDot"></span>Firebase</span><span id="userEmail" class="useremail"></span><button class="topbtn" onclick="backup()">↥ Backup</button><button class="topbtn" onclick="installHelp()">⌂ Instalar</button><button class="logoutBtn" onclick="logout()">Sair</button></div></div></header>
 <main class="wrap">
 <section class="hero"><div><h1>Visão geral</h1><p>Seu estoque, reparos e oportunidades em um só lugar.</p></div><a class="primary newlink" href="#cadastro" id="newBtn">＋ Novo aparelho</a></section>
 <section class="metrics">
@@ -233,6 +233,7 @@ async function login(email,password){
     currentUser=cred.user;
     $('userEmail').textContent=cred.user.email||'';
     document.body.classList.remove('authLocked');
+    document.body.style.overflow='auto';
     $('loginScreen').style.display='none';
     setSyncStatus('Carregando dados...',false);
     renderAll();
@@ -451,6 +452,7 @@ auth.onAuthStateChanged(user=>{
     // O carregamento do Firestore acontece em segundo plano e não pode bloquear a entrada.
     $('userEmail').textContent=user.email||'';
     document.body.classList.remove('authLocked');
+    document.body.style.overflow='auto';
     $('loginScreen').style.display='none';
     setSyncStatus('Carregando dados...',false);
     renderAll();
@@ -467,6 +469,7 @@ auth.onAuthStateChanged(user=>{
     firebaseReady=false;
     data=[];
     document.body.classList.add('authLocked');
+    document.body.style.overflow='hidden';
     $('loginScreen').style.display='grid';
     $('loginPassword').value='';
     $('userEmail').textContent='';
