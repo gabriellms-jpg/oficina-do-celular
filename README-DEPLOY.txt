@@ -21,3 +21,10 @@ No Firebase Console: Firestore Database > Regras > substitua as regras atuais pe
 
 IMPORTANTE
 A configuração web do Firebase fica no index.html porque este é um PWA estático. A apiKey do Firebase Web não é uma senha; a proteção dos dados é feita pelas regras do Firestore e pelo Firebase Authentication.
+
+
+VERSÃO CORRIGIDA
+- O botão "Testar Firebase" grava/lê/exclui um documento de diagnóstico.
+- O botão Salvar agora grava primeiro no Firestore e só depois atualiza o armazenamento local.
+- Erros do Firestore aparecem na tela com código e mensagem.
+- Fotos são comprimidas para reduzir o risco do limite de 1 MiB por documento.

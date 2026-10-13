@@ -29,7 +29,7 @@ body.authLocked{overflow:hidden}body.authLocked>header,body.authLocked>main,body
   <div class="loginCard">
     <div class="loginLogo">OC</div>
     <h1>Oficina do Celular</h1>
-    <p>Gestão de aparelhos sincronizada com Firebase.</p>
+    <p>Gestão de aparelhos sincronizada com Firebase.</p><div id="firebaseDiag" style="display:none;background:#fff4d6;color:#775500;border-radius:10px;padding:9px;font-size:11px;margin:8px 0"></div>
     <form id="loginForm">
       <div class="loginField"><label>E-mail</label><input id="loginEmail" type="email" autocomplete="username" required placeholder="seu@email.com"></div>
       <div class="loginField"><label>Senha</label><input id="loginPassword" type="password" autocomplete="current-password" required placeholder="Sua senha"></div>
@@ -38,7 +38,7 @@ body.authLocked{overflow:hidden}body.authLocked>header,body.authLocked>main,body
     </form>
   </div>
 </div>
-<header class="top"><div class="toprow"><div class="logo"><div class="mark">OC</div><div><div class="brand">OFICINA DO CELULAR</div><div class="sub">Gestão de aparelhos • V9</div></div></div><div class="userbar"><span class="syncText"><span class="syncDot"></span>Firebase</span><span id="userEmail" class="useremail"></span><button class="topbtn" onclick="backup()">↥ Backup</button><button class="topbtn" onclick="installHelp()">⌂ Instalar</button><button class="logoutBtn" onclick="logout()">Sair</button></div></div></header>
+<header class="top"><div class="toprow"><div class="logo"><div class="mark">OC</div><div><div class="brand">OFICINA DO CELULAR</div><div class="sub">Gestão de aparelhos • V9</div></div></div><div class="userbar"><button class="topbtn" type="button" onclick="testarFirebase()">☁ Testar Firebase</button><span id="syncStatus" class="syncText"><span class="syncDot"></span>Firebase</span><span id="userEmail" class="useremail"></span><button class="topbtn" onclick="backup()">↥ Backup</button><button class="topbtn" onclick="installHelp()">⌂ Instalar</button><button class="logoutBtn" onclick="logout()">Sair</button></div></div></header>
 <main class="wrap">
 <section class="hero"><div><h1>Visão geral</h1><p>Seu estoque, reparos e oportunidades em um só lugar.</p></div><a class="primary newlink" href="#cadastro" id="newBtn">＋ Novo aparelho</a></section>
 <section class="metrics">
@@ -133,6 +133,16 @@ async function requestPersistentStorage(){
 
 const $=id=>document.getElementById(id), brl=v=>(Number(v)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}), num=v=>Number(String(v||'').replace(/[R$\s.]/g,'').replace(',','.'))||0;
 
+function setSyncStatus(text, ok=true){
+  const el=$('syncStatus');
+  if(el) el.innerHTML='<span class="syncDot" style="background:'+(ok?'#56d987':'#e6a400')+'"></span>'+esc(text);
+}
+function showFirebaseError(message){
+  console.error(message);
+  const el=$('firebaseDiag');
+  if(el){el.textContent=message;el.style.display='block';}
+  setSyncStatus('Firebase com erro',false);
+}
 async function firebaseCollection(){
   if(!currentUser) throw new Error('Usuário não autenticado.');
   return firestore.collection('users').doc(currentUser.uid).collection('aparelhos');
@@ -151,11 +161,32 @@ async function firebaseReplace(items){
 }
 async function firebaseSaveItem(item){
   const col=await firebaseCollection();
-  await col.doc(String(item.id)).set(item);
+  const ref=col.doc(String(item.id));
+  await ref.set(item,{merge:true});
+  const check=await ref.get();
+  if(!check.exists) throw new Error('O Firebase confirmou a gravação sem encontrar o documento depois.');
+  return true;
 }
 async function firebaseDeleteItem(id){
   const col=await firebaseCollection();
   await col.doc(String(id)).delete();
+}
+async function testarFirebase(){
+  if(!currentUser){alert('Faça login primeiro.');return;}
+  try{
+    setSyncStatus('Testando Firebase...',false);
+    const col=await firebaseCollection();
+    const ref=col.doc('__teste_conexao__');
+    await ref.set({modelo:'TESTE FIREBASE',data:new Date().toISOString(),teste:true});
+    const snap=await ref.get();
+    if(!snap.exists) throw new Error('Documento de teste não foi encontrado após a gravação.');
+    await ref.delete();
+    setSyncStatus('Firebase conectado',true);
+    alert('TESTE OK! O Firebase está gravando e lendo normalmente.');
+  }catch(e){
+    showFirebaseError('Erro do Firebase: '+(e.code||'sem código')+' — '+(e.message||e));
+    alert('O Firebase não conseguiu gravar.\n\n'+(e.code||'sem código')+'\n'+(e.message||e));
+  }
 }
 function startFirestoreSync(){
   if(firestoreUnsubscribe) firestoreUnsubscribe();
@@ -163,13 +194,14 @@ function startFirestoreSync(){
   firestoreUnsubscribe=firestore.collection('users').doc(currentUser.uid).collection('aparelhos').onSnapshot(snap=>{
     const remote=snap.docs.map(d=>({id:d.id,...d.data()}));
     data=remote;
-    try{ idbReplace(data); }catch(_){}
-    try{ localSet(data); }catch(_){}
+    idbReplace(data).catch(()=>{});
+    try{localSet(data)}catch(_){ }
     renderAll();
     firebaseReady=true;
+    setSyncStatus('Firebase conectado',true);
   },err=>{
-    console.error('Firestore:',err);
     firebaseReady=false;
+    showFirebaseError('Sincronização Firestore: '+(err.code||'sem código')+' — '+(err.message||err));
   });
 }
 async function login(email,password){
@@ -190,6 +222,7 @@ async function logout(){
   if(confirm('Sair do sistema?')) await auth.signOut();
 }
 window.logout=logout;
+window.testarFirebase=testarFirebase;
 
 function openDB(){
   if(dbReady)return dbReady;
@@ -304,27 +337,47 @@ async function save(){
   await requestPersistentStorage();
   let checks=[...document.querySelectorAll('[data-check]')].map(c=>c.checked),x={id:$('id').value||Date.now().toString(),modelo:$('modelo').value.trim(),imei:$('imei').value.trim(),origem:$('origem').value,status:$('status').value,data:$('data').value||new Date().toISOString().slice(0,10),venda:num($('vendaInput').value),compra:num($('compra').value),pecas:num($('pecas').value),outros:num($('outros').value),taxas:num($('taxas').value),defeito:$('defeito').value.trim(),acao:$('acao').value.trim(),checks,photo:photoData};
   if(!x.modelo)return alert('Informe o modelo.');
+  if(!currentUser)return alert('Faça login antes de salvar.');
+
+  // Primeiro grava no Firebase. Só depois atualiza a cópia local.
+  try{
+    setSyncStatus('Salvando no Firebase...',false);
+    await firebaseSaveItem(x);
+  }catch(e){
+    showFirebaseError('Não foi possível salvar: '+(e.code||'sem código')+' — '+(e.message||e));
+    alert('NÃO SALVEI ainda no Firebase.\n\n'+(e.code||'sem código')+'\n'+(e.message||e)+'\n\nSe aparecer PERMISSION_DENIED, revise as regras do Firestore.');
+    return;
+  }
+
   let i=data.findIndex(a=>a.id===x.id);
   if(i>=0)data[i]=x;else data.push(x);
-  try{await idbReplace(data)}catch(_){}
-  try{localSet(data)}catch(_){}
-  if(currentUser){
-    try{await firebaseSaveItem(x)}catch(e){alert('O aparelho ficou salvo neste dispositivo, mas não foi sincronizado com o Firebase. Verifique a internet.');console.error(e)}
-  }
-  location.hash='';renderAll();
+  try{await idbReplace(data)}catch(_){ }
+  try{localSet(data)}catch(_){ }
+  setSyncStatus('Salvo no Firebase',true);
+  location.hash='';
+  renderAll();
 }
 async function removeItem(){
   if(confirm('Excluir este aparelho?')){
     let id=$('id').value;
+    if(!currentUser)return alert('Faça login antes de excluir.');
+    try{
+      setSyncStatus('Excluindo do Firebase...',false);
+      await firebaseDeleteItem(id);
+    }catch(e){
+      showFirebaseError('Não foi possível excluir: '+(e.code||'sem código')+' — '+(e.message||e));
+      alert('Não foi possível excluir no Firebase.\n\n'+(e.code||'sem código')+'\n'+(e.message||e));
+      return;
+    }
     data=data.filter(x=>x.id!==id);
-    try{await idbDelete(id)}catch(_){}
-    try{localSet(data)}catch(_){}
-    if(currentUser){try{await firebaseDeleteItem(id)}catch(e){alert('Não foi possível excluir do Firebase.');console.error(e)}}
+    try{await idbDelete(id)}catch(_){ }
+    try{localSet(data)}catch(_){ }
+    setSyncStatus('Firebase conectado',true);
     location.hash='';renderAll();
   }
 }
 function clearPhoto(){photoData='';$('photoPreview').removeAttribute('src');$('photo').value=''}
-$('photo').addEventListener('change',e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{let im=new Image();im.onload=()=>{let c=document.createElement('canvas'),max=700,scale=Math.min(1,max/Math.max(im.width,im.height));c.width=im.width*scale;c.height=im.height*scale;c.getContext('2d').drawImage(im,0,0,c.width,c.height);photoData=c.toDataURL('image/jpeg',.72);$('photoPreview').src=photoData};im.src=r.result};r.readAsDataURL(f)})
+$('photo').addEventListener('change',e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{let im=new Image();im.onload=()=>{let c=document.createElement('canvas'),max=450,scale=Math.min(1,max/Math.max(im.width,im.height));c.width=im.width*scale;c.height=im.height*scale;c.getContext('2d').drawImage(im,0,0,c.width,c.height);photoData=c.toDataURL('image/jpeg',.55);$('photoPreview').src=photoData};im.src=r.result};r.readAsDataURL(f)})
 ['compra','pecas','outros','taxas','vendaInput'].forEach(i=>$(i).addEventListener('input',calc));
 function calc(){let c=num($('compra').value)+num($('pecas').value)+num($('outros').value)+num($('taxas').value),v=num($('vendaInput').value),l=v-c,m=v?l/v*100:0;$('custo').textContent=brl(c);$('lucroForm').textContent=brl(l);$('margem').textContent=m.toFixed(1)+'%';let d=$('decision');if(!v){d.className='decision good';d.textContent='🟢 Preencha preço de venda para avaliar a oportunidade.'}else if(l<0){d.className='decision bad';d.textContent='🔴 Não compensa neste cenário: custo acima da venda.'}else if(m<15){d.className='decision warn';d.textContent='🟡 Margem apertada: tente negociar o preço de compra.'}else if(m<25){d.className='decision warn';d.textContent='🟡 Pode compensar, mas confira o risco do reparo.'}else{d.className='decision good';d.textContent='🟢 Boa margem prevista. Confira diagnóstico e procedência.'}}
 function setFiltro(f){filtro=f;document.querySelectorAll('.pill').forEach(b=>b.classList.remove('active'));let map={'Todos':'Todos','Aguardando reparo':'Aguardando','Em reparo':'Reparo','Pronto para venda':'Prontos','Vendido':'Vendidos'};let b=[...document.querySelectorAll('.pill')].find(z=>z.textContent===map[f]);if(b)b.classList.add('active');renderStock()}
@@ -338,12 +391,22 @@ if('serviceWorker' in navigator && location.protocol!=='file:'){window.addEventL
 $('loginForm').addEventListener('submit',e=>{e.preventDefault();login($('loginEmail').value.trim(),$('loginPassword').value);});
 auth.onAuthStateChanged(async user=>{
   currentUser=user;
+  const diag=$('firebaseDiag'); if(diag){diag.style.display='none';diag.textContent='';}
   if(user){
-    document.body.classList.remove('authLocked');
-    $('loginScreen').style.display='none';
+    setSyncStatus('Conectando...',false);
     $('userEmail').textContent=user.email||'';
-    await loadData();
-    renderAll();
+    try{
+      await loadData();
+      renderAll();
+      document.body.classList.remove('authLocked');
+      $('loginScreen').style.display='none';
+      setSyncStatus('Firebase conectado',true);
+    }catch(e){
+      console.error('Falha ao abrir o sistema:',e);
+      document.body.classList.add('authLocked');
+      $('loginScreen').style.display='grid';
+      showFirebaseError('Login feito, mas não foi possível carregar o sistema: '+(e.code||'sem código')+' — '+(e.message||e));
+    }
   }else{
     if(firestoreUnsubscribe){firestoreUnsubscribe();firestoreUnsubscribe=null;}
     firebaseReady=false;
