@@ -389,24 +389,26 @@ $('photoBtn').addEventListener('click', function(e){e.preventDefault();document.
 $('search').addEventListener('input', renderStock);
 if('serviceWorker' in navigator && location.protocol!=='file:'){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}
 $('loginForm').addEventListener('submit',e=>{e.preventDefault();login($('loginEmail').value.trim(),$('loginPassword').value);});
-auth.onAuthStateChanged(async user=>{
+auth.onAuthStateChanged(user=>{
   currentUser=user;
-  const diag=$('firebaseDiag'); if(diag){diag.style.display='none';diag.textContent='';}
+  const diag=$('firebaseDiag');
+  if(diag){diag.style.display='none';diag.textContent='';}
   if(user){
-    setSyncStatus('Conectando...',false);
+    // Libera a interface imediatamente após a autenticação.
+    // O carregamento do Firestore acontece em segundo plano e não pode bloquear a entrada.
     $('userEmail').textContent=user.email||'';
-    try{
-      await loadData();
+    document.body.classList.remove('authLocked');
+    $('loginScreen').style.display='none';
+    setSyncStatus('Carregando dados...',false);
+    renderAll();
+
+    loadData().then(()=>{
       renderAll();
-      document.body.classList.remove('authLocked');
-      $('loginScreen').style.display='none';
       setSyncStatus('Firebase conectado',true);
-    }catch(e){
-      console.error('Falha ao abrir o sistema:',e);
-      document.body.classList.add('authLocked');
-      $('loginScreen').style.display='grid';
-      showFirebaseError('Login feito, mas não foi possível carregar o sistema: '+(e.code||'sem código')+' — '+(e.message||e));
-    }
+    }).catch(e=>{
+      console.error('Falha ao carregar dados:',e);
+      showFirebaseError('Login realizado. Erro ao carregar o Firebase: '+(e.code||'sem código')+' — '+(e.message||e));
+    });
   }else{
     if(firestoreUnsubscribe){firestoreUnsubscribe();firestoreUnsubscribe=null;}
     firebaseReady=false;
