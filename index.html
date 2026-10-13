@@ -23,6 +23,31 @@ body.authLocked{overflow:hidden}.loginScreen{position:fixed;inset:0;z-index:999;
 .calc{background:#e9f9ef;border:1px solid #bceacb;border-radius:15px;padding:12px;margin-top:12px}.calcrow{display:flex;justify-content:space-between;font-size:11px;margin:5px 0}.total{border-top:1px solid #bceacb;padding-top:8px;margin-top:8px;font-size:14px;font-weight:900}.decision{border-radius:14px;padding:12px;margin-top:10px;font-size:12px;font-weight:900}.good{background:#ddf8e7;color:#16723e}.warn{background:#fff1c7;color:#886000}.bad{background:#fee3e3;color:#9e2828}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.danger{background:#fee3e3;color:#9e2828;border:0;border-radius:12px;padding:11px;font-weight:800}.hidden{display:none!important}.footer{text-align:center;color:#89938d;font-size:10px;padding:24px}
 @media(min-width:760px){.metrics{grid-template-columns:repeat(4,1fr)}.grid2{grid-template-columns:1.15fr .85fr}.sheet{border-radius:24px;max-height:none}.checkgrid{grid-template-columns:repeat(3,1fr)}}
 </style>
+
+<script>
+(function(){
+  function diag(msg){
+    try{
+      var b=document.getElementById('firebaseDiag');
+      if(!b){
+        b=document.createElement('div');
+        b.id='firebaseDiag';
+        b.style.cssText='position:fixed;left:12px;right:12px;bottom:12px;z-index:10000;background:#fff3cd;color:#664d03;padding:14px;border-radius:10px;font:14px Arial;box-shadow:0 4px 20px rgba(0,0,0,.25)';
+        document.body.appendChild(b);
+      }
+      b.textContent=String(msg);
+      b.style.display='block';
+    }catch(_){}
+  }
+  window.addEventListener('error',function(e){
+    diag('Erro JavaScript: '+(e.message||'desconhecido')+(e.filename?'\nArquivo: '+e.filename:'')+(e.lineno?'\nLinha: '+e.lineno:''));
+  });
+  window.addEventListener('unhandledrejection',function(e){
+    var r=e.reason||{};
+    diag('Erro Firebase/app: '+(r.code||'')+' '+(r.message||r));
+  });
+})();
+</script>
 </head>
 <body class="authLocked">
 <div id="loginScreen" class="loginScreen">
@@ -38,7 +63,7 @@ body.authLocked{overflow:hidden}.loginScreen{position:fixed;inset:0;z-index:999;
     </form>
   </div>
 </div>
-<header class="top"><div class="toprow"><div class="logo"><div class="mark">OC</div><div><div class="brand">OFICINA DO CELULAR</div><div class="sub">Gestão de aparelhos • V12</div></div></div><div class="userbar"><button class="topbtn" type="button" onclick="testarFirebase()">☁ Testar Firebase</button><span id="syncStatus" class="syncText"><span class="syncDot"></span>Firebase</span><span id="userEmail" class="useremail"></span><button class="topbtn" onclick="backup()">↥ Backup</button><button class="topbtn" onclick="installHelp()">⌂ Instalar</button><button class="logoutBtn" onclick="logout()">Sair</button></div></div></header>
+<header class="top"><div class="toprow"><div class="logo"><div class="mark">OC</div><div><div class="brand">OFICINA DO CELULAR</div><div class="sub">Gestão de aparelhos • V13</div></div></div><div class="userbar"><button class="topbtn" type="button" onclick="testarFirebase()">☁ Testar Firebase</button><span id="syncStatus" class="syncText"><span class="syncDot"></span>Firebase</span><span id="userEmail" class="useremail"></span><button class="topbtn" onclick="backup()">↥ Backup</button><button class="topbtn" onclick="installHelp()">⌂ Instalar</button><button class="logoutBtn" onclick="logout()">Sair</button></div></div></header>
 <main class="wrap">
 <section class="hero"><div><h1>Visão geral</h1><p>Seu estoque, reparos e oportunidades em um só lugar.</p></div><a class="primary newlink" href="#cadastro" id="newBtn">＋ Novo aparelho</a></section>
 <section class="metrics">
@@ -462,7 +487,7 @@ auth.onAuthStateChanged(user=>{
       setSyncStatus('Firebase conectado',true);
     }).catch(e=>{
       console.error('Falha ao carregar dados:',e);
-      showFirebaseError('Login realizado. Erro ao carregar o Firebase: '+(e.code||'sem código')+' — '+(e.message||e));
+      document.body.style.overflow='auto'; showFirebaseError('Login realizado, mas houve erro ao carregar os dados: '+(e.code||'sem código')+' — '+(e.message||e));
     });
   }else{
     if(firestoreUnsubscribe){firestoreUnsubscribe();firestoreUnsubscribe=null;}
