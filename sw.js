@@ -1,4 +1,4 @@
-const CACHE='oficina-celular-v9-1';
+const CACHE='oficina-celular-v9-firebase-1';
 const ASSETS=['./','./index.html','./manifest.json','./icon-180.png','./icon-512.png'];
 
 self.addEventListener('install', event => {

@@ -10,6 +10,7 @@
 <style>
 :root{--bg:#f3f6f4;--card:#fff;--ink:#142019;--muted:#718078;--line:#e1e8e3;--green:#18a957;--green2:#08783c;--dark:#0b120f;--yellow:#d69500;--blue:#2f72cf;--red:#d94444;--purple:#7655c9}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer}
+body.authLocked{overflow:hidden}body.authLocked>header,body.authLocked>main,body.authLocked>#cadastro{display:none!important}.loginScreen{position:fixed;inset:0;z-index:999;background:linear-gradient(135deg,#09100d,#17241c);display:grid;place-items:center;padding:20px}.loginCard{width:min(430px,100%);background:#fff;border-radius:24px;padding:24px;box-shadow:0 20px 60px #0006}.loginLogo{width:58px;height:58px;border-radius:17px;background:linear-gradient(135deg,#21c769,#08783c);display:grid;place-items:center;color:#fff;font-weight:900;font-size:20px;margin-bottom:16px}.loginCard h1{margin:0;font-size:23px}.loginCard p{color:var(--muted);font-size:12px;margin:7px 0 18px}.loginField{margin:10px 0}.loginField label{display:block;font-size:11px;font-weight:850;margin-bottom:5px}.loginField input{width:100%;border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff}.loginBtn{width:100%;margin-top:10px}.loginError{background:#fee3e3;color:#9e2828;border-radius:12px;padding:10px;font-size:11px;margin-top:10px;display:none}.userbar{display:flex;align-items:center;gap:8px}.useremail{font-size:10px;color:#b8c3bd;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.logoutBtn{border:1px solid #ffffff22;background:#ffffff0d;color:#fff;border-radius:12px;padding:9px 11px}.syncDot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#56d987;margin-right:5px}.syncText{font-size:9px;color:#aebbb3}
 .top{background:linear-gradient(135deg,#09100d,#17241c);color:#fff;padding:18px 18px 16px;position:sticky;top:0;z-index:20;box-shadow:0 4px 18px #0002}.toprow{display:flex;align-items:center;justify-content:space-between;max-width:1100px;margin:auto}.logo{display:flex;gap:10px;align-items:center}.mark{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#21c769,#08783c);display:grid;place-items:center;font-weight:900}.brand{font-weight:900;font-size:17px}.sub{font-size:11px;color:#aebbb3}.topbtn{border:1px solid #ffffff22;background:#ffffff0d;color:#fff;border-radius:12px;padding:9px 11px}
 .wrap{max-width:1100px;margin:auto;padding:18px}.hero{display:flex;justify-content:space-between;align-items:end;gap:12px;margin:2px 0 17px}.hero h1{margin:0;font-size:27px}.hero p{margin:5px 0 0;color:var(--muted);font-size:12px}.primary{background:var(--green);color:#fff;border:0;border-radius:13px;padding:12px 15px;font-weight:850;box-shadow:0 5px 14px #18a95735}.secondary{background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:11px 13px;font-weight:800}
 .metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.metric{background:var(--card);border:1px solid var(--line);border-radius:17px;padding:14px;box-shadow:0 3px 14px #15251b08}.metric small{color:var(--muted);font-size:11px}.metric strong{display:block;font-size:19px;margin-top:6px}.hint{color:var(--muted);font-size:10px;margin-top:3px}.green{color:var(--green2)}.red{color:var(--red)}
@@ -23,8 +24,21 @@
 @media(min-width:760px){.metrics{grid-template-columns:repeat(4,1fr)}.grid2{grid-template-columns:1.15fr .85fr}.sheet{border-radius:24px;max-height:none}.checkgrid{grid-template-columns:repeat(3,1fr)}}
 </style>
 </head>
-<body>
-<header class="top"><div class="toprow"><div class="logo"><div class="mark">OC</div><div><div class="brand">OFICINA DO CELULAR</div><div class="sub">Gestão de aparelhos • V9</div></div></div><div style="display:flex;gap:7px"><button class="topbtn" onclick="backup()">↥ Backup</button><button class="topbtn" onclick="installHelp()">⌂ Instalar</button></div></div></header>
+<body class="authLocked">
+<div id="loginScreen" class="loginScreen">
+  <div class="loginCard">
+    <div class="loginLogo">OC</div>
+    <h1>Oficina do Celular</h1>
+    <p>Gestão de aparelhos sincronizada com Firebase.</p>
+    <form id="loginForm">
+      <div class="loginField"><label>E-mail</label><input id="loginEmail" type="email" autocomplete="username" required placeholder="seu@email.com"></div>
+      <div class="loginField"><label>Senha</label><input id="loginPassword" type="password" autocomplete="current-password" required placeholder="Sua senha"></div>
+      <button class="primary loginBtn" type="submit">Entrar</button>
+      <div id="loginError" class="loginError"></div>
+    </form>
+  </div>
+</div>
+<header class="top"><div class="toprow"><div class="logo"><div class="mark">OC</div><div><div class="brand">OFICINA DO CELULAR</div><div class="sub">Gestão de aparelhos • V9</div></div></div><div class="userbar"><span class="syncText"><span class="syncDot"></span>Firebase</span><span id="userEmail" class="useremail"></span><button class="topbtn" onclick="backup()">↥ Backup</button><button class="topbtn" onclick="installHelp()">⌂ Instalar</button><button class="logoutBtn" onclick="logout()">Sair</button></div></div></header>
 <main class="wrap">
 <section class="hero"><div><h1>Visão geral</h1><p>Seu estoque, reparos e oportunidades em um só lugar.</p></div><a class="primary newlink" href="#cadastro" id="newBtn">＋ Novo aparelho</a></section>
 <section class="metrics">
@@ -87,7 +101,24 @@
 <button type="button" id="delete" class="danger hidden" style="width:100%;margin-top:8px" onclick="removeItem()">Excluir aparelho</button>
 </div></section>
 
+<script src="https://www.gstatic.com/firebasejs/13.0.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/13.0.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore-compat.js"></script>
+
 <script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDkage0tQmBdul-s18_BmqtHw6aAX0Hu6Q",
+  authDomain: "oficinadocelular-gestao.firebaseapp.com",
+  projectId: "oficinadocelular-gestao",
+  storageBucket: "oficinadocelular-gestao.firebasestorage.app",
+  messagingSenderId: "750576153712",
+  appId: "1:750576153712:web:7baf8f0752ad0393def0b5"
+};
+const firebaseApp = firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const firestore = firebase.firestore();
+let currentUser=null, firestoreUnsubscribe=null, firebaseReady=false;
+
 const checkNames=['Liga / inicializa','Tela','Touch','Bateria','Carregamento','Rede / sinal','Wi‑Fi','Bluetooth','Câmeras','Áudio / microfone','Biometria / Face ID','Sensores','IMEI / conta verificados','Sem sinais de oxidação'];
 const DB_NAME='oficina_do_celular_db', DB_VERSION=2, STORE='aparelhos';
 const STORAGE_KEY='oc_v3';
@@ -101,6 +132,64 @@ async function requestPersistentStorage(){
 }
 
 const $=id=>document.getElementById(id), brl=v=>(Number(v)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}), num=v=>Number(String(v||'').replace(/[R$\s.]/g,'').replace(',','.'))||0;
+
+async function firebaseCollection(){
+  if(!currentUser) throw new Error('Usuário não autenticado.');
+  return firestore.collection('users').doc(currentUser.uid).collection('aparelhos');
+}
+async function firebaseLoadOnce(){
+  const snap=await (await firebaseCollection()).get();
+  return snap.docs.map(d=>({id:d.id,...d.data()}));
+}
+async function firebaseReplace(items){
+  const col=await firebaseCollection();
+  const snap=await col.get();
+  const batch=firestore.batch();
+  snap.docs.forEach(d=>batch.delete(d.ref));
+  items.forEach(x=>batch.set(col.doc(String(x.id)),x));
+  await batch.commit();
+}
+async function firebaseSaveItem(item){
+  const col=await firebaseCollection();
+  await col.doc(String(item.id)).set(item);
+}
+async function firebaseDeleteItem(id){
+  const col=await firebaseCollection();
+  await col.doc(String(id)).delete();
+}
+function startFirestoreSync(){
+  if(firestoreUnsubscribe) firestoreUnsubscribe();
+  if(!currentUser) return;
+  firestoreUnsubscribe=firestore.collection('users').doc(currentUser.uid).collection('aparelhos').onSnapshot(snap=>{
+    const remote=snap.docs.map(d=>({id:d.id,...d.data()}));
+    data=remote;
+    try{ idbReplace(data); }catch(_){}
+    try{ localSet(data); }catch(_){}
+    renderAll();
+    firebaseReady=true;
+  },err=>{
+    console.error('Firestore:',err);
+    firebaseReady=false;
+  });
+}
+async function login(email,password){
+  $('loginError').style.display='none';
+  try{await auth.signInWithEmailAndPassword(email,password);}
+  catch(e){
+    const map={
+      'auth/invalid-credential':'E-mail ou senha incorretos.',
+      'auth/invalid-email':'E-mail inválido.',
+      'auth/user-disabled':'Este usuário está desativado.',
+      'auth/too-many-requests':'Muitas tentativas. Aguarde alguns minutos e tente novamente.'
+    };
+    $('loginError').textContent=map[e.code]||('Não foi possível entrar: '+e.message);
+    $('loginError').style.display='block';
+  }
+}
+async function logout(){
+  if(confirm('Sair do sistema?')) await auth.signOut();
+}
+window.logout=logout;
 
 function openDB(){
   if(dbReady)return dbReady;
@@ -148,24 +237,39 @@ function localSet(items){
   localStorage.setItem(STORAGE_KEY,JSON.stringify(items));
 }
 async function persist(){
-  let idbOK=false, localOK=false;
+  let idbOK=false, localOK=false, cloudOK=false;
   try{await idbReplace(data);idbOK=true}catch(_){}
   try{localSet(data);localOK=true}catch(_){}
-  if(!idbOK&&!localOK) alert('Não foi possível gravar os dados neste dispositivo.');
+  if(currentUser){
+    try{await firebaseReplace(data);cloudOK=true}catch(e){console.error(e)}
+  }
+  if(!idbOK&&!localOK&&!cloudOK) alert('Não foi possível gravar os dados.');
+  if(currentUser&&!cloudOK) alert('Salvo neste aparelho, mas não foi possível sincronizar com o Firebase. Verifique a internet.');
 }
 async function loadData(){
   await requestPersistentStorage();
   let idb=[], local=[];
   try{idb=await idbGetAll()}catch(_){}
   try{local=localGet()}catch(_){}
-  if(idb.length){
-    data=idb;
-    try{localSet(data)}catch(_){}
-  }else if(local.length){
-    data=local;
-    try{await idbReplace(data)}catch(_){}
-  }else{
-    data=[];
+  data=idb.length?idb:(local.length?local:[]);
+  try{await idbReplace(data)}catch(_){}
+  try{localSet(data)}catch(_){}
+
+  if(currentUser){
+    try{
+      const remote=await firebaseLoadOnce();
+      if(remote.length){
+        data=remote;
+        await idbReplace(data).catch(()=>{});
+        try{localSet(data)}catch(_){}
+      }else if(data.length){
+        await firebaseReplace(data);
+      }
+      startFirestoreSync();
+    }catch(e){
+      console.error('Falha ao carregar Firestore:',e);
+      startFirestoreSync();
+    }
   }
 }
 async function testarArmazenamento(){
@@ -197,8 +301,28 @@ function closeModal(){location.hash=''}
 function edit(id){let x=data.find(a=>a.id===id);if(!x)return;clearForm();$('title').textContent='Editar aparelho';$('delete').classList.remove('hidden');$('id').value=x.id;$('modelo').value=x.modelo;$('imei').value=x.imei;$('origem').value=x.origem;$('status').value=x.status;$('data').value=x.data;$('vendaInput').value=x.venda;$('compra').value=x.compra;$('pecas').value=x.pecas;$('outros').value=x.outros;$('taxas').value=x.taxas;$('defeito').value=x.defeito;$('acao').value=x.acao;photoData=x.photo||'';if(photoData)$('photoPreview').src=photoData;renderChecks(x.checks||[]);calc();location.hash='cadastro'}
 window.testarArmazenamento=testarArmazenamento;
 async function save(){
-  await requestPersistentStorage();let checks=[...document.querySelectorAll('[data-check]')].map(c=>c.checked),x={id:$('id').value||Date.now().toString(),modelo:$('modelo').value.trim(),imei:$('imei').value.trim(),origem:$('origem').value,status:$('status').value,data:$('data').value||new Date().toISOString().slice(0,10),venda:num($('vendaInput').value),compra:num($('compra').value),pecas:num($('pecas').value),outros:num($('outros').value),taxas:num($('taxas').value),defeito:$('defeito').value.trim(),acao:$('acao').value.trim(),checks,photo:photoData};if(!x.modelo)return alert('Informe o modelo.');let i=data.findIndex(a=>a.id===x.id);if(i>=0)data[i]=x;else data.push(x);await persist();location.hash='';renderAll()}
-async function removeItem(){if(confirm('Excluir este aparelho?')){let id=$('id').value;data=data.filter(x=>x.id!==id);await idbDelete(id).catch(()=>persist());location.hash='';renderAll()}}
+  await requestPersistentStorage();
+  let checks=[...document.querySelectorAll('[data-check]')].map(c=>c.checked),x={id:$('id').value||Date.now().toString(),modelo:$('modelo').value.trim(),imei:$('imei').value.trim(),origem:$('origem').value,status:$('status').value,data:$('data').value||new Date().toISOString().slice(0,10),venda:num($('vendaInput').value),compra:num($('compra').value),pecas:num($('pecas').value),outros:num($('outros').value),taxas:num($('taxas').value),defeito:$('defeito').value.trim(),acao:$('acao').value.trim(),checks,photo:photoData};
+  if(!x.modelo)return alert('Informe o modelo.');
+  let i=data.findIndex(a=>a.id===x.id);
+  if(i>=0)data[i]=x;else data.push(x);
+  try{await idbReplace(data)}catch(_){}
+  try{localSet(data)}catch(_){}
+  if(currentUser){
+    try{await firebaseSaveItem(x)}catch(e){alert('O aparelho ficou salvo neste dispositivo, mas não foi sincronizado com o Firebase. Verifique a internet.');console.error(e)}
+  }
+  location.hash='';renderAll();
+}
+async function removeItem(){
+  if(confirm('Excluir este aparelho?')){
+    let id=$('id').value;
+    data=data.filter(x=>x.id!==id);
+    try{await idbDelete(id)}catch(_){}
+    try{localSet(data)}catch(_){}
+    if(currentUser){try{await firebaseDeleteItem(id)}catch(e){alert('Não foi possível excluir do Firebase.');console.error(e)}}
+    location.hash='';renderAll();
+  }
+}
 function clearPhoto(){photoData='';$('photoPreview').removeAttribute('src');$('photo').value=''}
 $('photo').addEventListener('change',e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{let im=new Image();im.onload=()=>{let c=document.createElement('canvas'),max=700,scale=Math.min(1,max/Math.max(im.width,im.height));c.width=im.width*scale;c.height=im.height*scale;c.getContext('2d').drawImage(im,0,0,c.width,c.height);photoData=c.toDataURL('image/jpeg',.72);$('photoPreview').src=photoData};im.src=r.result};r.readAsDataURL(f)})
 ['compra','pecas','outros','taxas','vendaInput'].forEach(i=>$(i).addEventListener('input',calc));
@@ -211,6 +335,24 @@ function backup(){let b=new Blob([JSON.stringify(data,null,2)],{type:'applicatio
 $('photoBtn').addEventListener('click', function(e){e.preventDefault();document.getElementById('photo').click()});
 $('search').addEventListener('input', renderStock);
 if('serviceWorker' in navigator && location.protocol!=='file:'){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}
-loadData().then(()=>renderAll());
+$('loginForm').addEventListener('submit',e=>{e.preventDefault();login($('loginEmail').value.trim(),$('loginPassword').value);});
+auth.onAuthStateChanged(async user=>{
+  currentUser=user;
+  if(user){
+    document.body.classList.remove('authLocked');
+    $('loginScreen').style.display='none';
+    $('userEmail').textContent=user.email||'';
+    await loadData();
+    renderAll();
+  }else{
+    if(firestoreUnsubscribe){firestoreUnsubscribe();firestoreUnsubscribe=null;}
+    firebaseReady=false;
+    data=[];
+    document.body.classList.add('authLocked');
+    $('loginScreen').style.display='grid';
+    $('loginPassword').value='';
+    $('userEmail').textContent='';
+  }
+});
 </script>
 </body></html>

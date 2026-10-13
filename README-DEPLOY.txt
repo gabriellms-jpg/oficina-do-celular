@@ -1,15 +1,23 @@
-OFICINA DO CELULAR — SISTEMA ONLINE
+OFICINA DO CELULAR — GESTÃO V9 FIREBASE
 
-Esta pasta está pronta para publicação como site HTTPS/PWA.
+Esta versão é um PWA com Firebase Authentication e Cloud Firestore.
 
-PRÓXIMO PASSO
-1. Publicar estes arquivos em um repositório GitHub.
-2. Ativar GitHub Pages.
-3. Abrir o endereço HTTPS no Safari do iPhone.
+CONFIGURAÇÃO JÁ FEITA
+- Projeto Firebase: oficinadocelular-gestao
+- App Web registrado
+- Login por e-mail/senha
+- Firestore criado
+- Os aparelhos são gravados por usuário em users/{uid}/aparelhos
+
+PUBLICAÇÃO
+1. Publique todos os arquivos desta pasta em um servidor HTTPS.
+2. Abra o endereço HTTPS no Safari do iPhone.
+3. Faça login com o usuário criado no Firebase Authentication.
 4. Safari > Compartilhar > Adicionar à Tela de Início.
 
-IMPORTANTE
-A V5 ainda usa armazenamento local do navegador. A publicação online resolve o acesso por link/PWA, mas NÃO sincroniza os dados entre aparelhos.
+REGRAS DO FIRESTORE
+O arquivo firestore.rules contém as regras recomendadas para esta versão.
+No Firebase Console: Firestore Database > Regras > substitua as regras atuais pelo conteúdo desse arquivo e publique.
 
-ETAPA SEGUINTE DO PROJETO
-Migrar os dados para um banco online (Firebase/Firestore) com autenticação. Só então iPhone, computador e tablet compartilharão o mesmo estoque.
+IMPORTANTE
+A configuração web do Firebase fica no index.html porque este é um PWA estático. A apiKey do Firebase Web não é uma senha; a proteção dos dados é feita pelas regras do Firestore e pelo Firebase Authentication.
