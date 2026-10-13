@@ -10,7 +10,7 @@
 <style>
 :root{--bg:#f3f6f4;--card:#fff;--ink:#142019;--muted:#718078;--line:#e1e8e3;--green:#18a957;--green2:#08783c;--dark:#0b120f;--yellow:#d69500;--blue:#2f72cf;--red:#d94444;--purple:#7655c9}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer}
-body.authLocked{overflow:hidden}.loginScreen{position:fixed;inset:0;z-index:999;background:linear-gradient(135deg,#09100d,#17241c);display:grid;place-items:center;padding:20px}.loginCard{width:min(430px,100%);background:#fff;border-radius:24px;padding:24px;box-shadow:0 20px 60px #0006}.loginLogo{width:58px;height:58px;border-radius:17px;background:linear-gradient(135deg,#21c769,#08783c);display:grid;place-items:center;color:#fff;font-weight:900;font-size:20px;margin-bottom:16px}.loginCard h1{margin:0;font-size:23px}.loginCard p{color:var(--muted);font-size:12px;margin:7px 0 18px}.loginField{margin:10px 0}.loginField label{display:block;font-size:11px;font-weight:850;margin-bottom:5px}.loginField input{width:100%;border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff}.loginBtn{width:100%;margin-top:10px}.loginError{background:#fee3e3;color:#9e2828;border-radius:12px;padding:10px;font-size:11px;margin-top:10px;display:none}.userbar{display:flex;align-items:center;gap:8px}.useremail{font-size:10px;color:#b8c3bd;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.logoutBtn{border:1px solid #ffffff22;background:#ffffff0d;color:#fff;border-radius:12px;padding:9px 11px}.syncDot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#56d987;margin-right:5px}.syncText{font-size:9px;color:#aebbb3}
+body.authLocked{overflow:hidden}body.authLocked>header,body.authLocked>main,body.authLocked>#cadastro{display:none!important}.loginScreen{position:fixed;inset:0;z-index:999;background:linear-gradient(135deg,#09100d,#17241c);display:grid;place-items:center;padding:20px}.loginCard{width:min(430px,100%);background:#fff;border-radius:24px;padding:24px;box-shadow:0 20px 60px #0006}.loginLogo{width:58px;height:58px;border-radius:17px;background:linear-gradient(135deg,#21c769,#08783c);display:grid;place-items:center;color:#fff;font-weight:900;font-size:20px;margin-bottom:16px}.loginCard h1{margin:0;font-size:23px}.loginCard p{color:var(--muted);font-size:12px;margin:7px 0 18px}.loginField{margin:10px 0}.loginField label{display:block;font-size:11px;font-weight:850;margin-bottom:5px}.loginField input{width:100%;border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff}.loginBtn{width:100%;margin-top:10px}.loginError{background:#fee3e3;color:#9e2828;border-radius:12px;padding:10px;font-size:11px;margin-top:10px;display:none}.userbar{display:flex;align-items:center;gap:8px}.useremail{font-size:10px;color:#b8c3bd;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.logoutBtn{border:1px solid #ffffff22;background:#ffffff0d;color:#fff;border-radius:12px;padding:9px 11px}.syncDot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#56d987;margin-right:5px}.syncText{font-size:9px;color:#aebbb3}
 .top{background:linear-gradient(135deg,#09100d,#17241c);color:#fff;padding:18px 18px 16px;position:sticky;top:0;z-index:20;box-shadow:0 4px 18px #0002}.toprow{display:flex;align-items:center;justify-content:space-between;max-width:1100px;margin:auto}.logo{display:flex;gap:10px;align-items:center}.mark{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#21c769,#08783c);display:grid;place-items:center;font-weight:900}.brand{font-weight:900;font-size:17px}.sub{font-size:11px;color:#aebbb3}.topbtn{border:1px solid #ffffff22;background:#ffffff0d;color:#fff;border-radius:12px;padding:9px 11px}
 .wrap{max-width:1100px;margin:auto;padding:18px}.hero{display:flex;justify-content:space-between;align-items:end;gap:12px;margin:2px 0 17px}.hero h1{margin:0;font-size:27px}.hero p{margin:5px 0 0;color:var(--muted);font-size:12px}.primary{background:var(--green);color:#fff;border:0;border-radius:13px;padding:12px 15px;font-weight:850;box-shadow:0 5px 14px #18a95735}.secondary{background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:11px 13px;font-weight:800}
 .metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.metric{background:var(--card);border:1px solid var(--line);border-radius:17px;padding:14px;box-shadow:0 3px 14px #15251b08}.metric small{color:var(--muted);font-size:11px}.metric strong{display:block;font-size:19px;margin-top:6px}.hint{color:var(--muted);font-size:10px;margin-top:3px}.green{color:var(--green2)}.red{color:var(--red)}
@@ -23,31 +23,6 @@ body.authLocked{overflow:hidden}.loginScreen{position:fixed;inset:0;z-index:999;
 .calc{background:#e9f9ef;border:1px solid #bceacb;border-radius:15px;padding:12px;margin-top:12px}.calcrow{display:flex;justify-content:space-between;font-size:11px;margin:5px 0}.total{border-top:1px solid #bceacb;padding-top:8px;margin-top:8px;font-size:14px;font-weight:900}.decision{border-radius:14px;padding:12px;margin-top:10px;font-size:12px;font-weight:900}.good{background:#ddf8e7;color:#16723e}.warn{background:#fff1c7;color:#886000}.bad{background:#fee3e3;color:#9e2828}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.danger{background:#fee3e3;color:#9e2828;border:0;border-radius:12px;padding:11px;font-weight:800}.hidden{display:none!important}.footer{text-align:center;color:#89938d;font-size:10px;padding:24px}
 @media(min-width:760px){.metrics{grid-template-columns:repeat(4,1fr)}.grid2{grid-template-columns:1.15fr .85fr}.sheet{border-radius:24px;max-height:none}.checkgrid{grid-template-columns:repeat(3,1fr)}}
 </style>
-
-<script>
-(function(){
-  function diag(msg){
-    try{
-      var b=document.getElementById('firebaseDiag');
-      if(!b){
-        b=document.createElement('div');
-        b.id='firebaseDiag';
-        b.style.cssText='position:fixed;left:12px;right:12px;bottom:12px;z-index:10000;background:#fff3cd;color:#664d03;padding:14px;border-radius:10px;font:14px Arial;box-shadow:0 4px 20px rgba(0,0,0,.25)';
-        document.body.appendChild(b);
-      }
-      b.textContent=String(msg);
-      b.style.display='block';
-    }catch(_){}
-  }
-  window.addEventListener('error',function(e){
-    diag('Erro JavaScript: '+(e.message||'desconhecido')+(e.filename?'\nArquivo: '+e.filename:'')+(e.lineno?'\nLinha: '+e.lineno:''));
-  });
-  window.addEventListener('unhandledrejection',function(e){
-    var r=e.reason||{};
-    diag('Erro Firebase/app: '+(r.code||'')+' '+(r.message||r));
-  });
-})();
-</script>
 </head>
 <body class="authLocked">
 <div id="loginScreen" class="loginScreen">
@@ -63,7 +38,7 @@ body.authLocked{overflow:hidden}.loginScreen{position:fixed;inset:0;z-index:999;
     </form>
   </div>
 </div>
-<header class="top"><div class="toprow"><div class="logo"><div class="mark">OC</div><div><div class="brand">OFICINA DO CELULAR</div><div class="sub">Gestão de aparelhos • V13</div></div></div><div class="userbar"><button class="topbtn" type="button" onclick="testarFirebase()">☁ Testar Firebase</button><span id="syncStatus" class="syncText"><span class="syncDot"></span>Firebase</span><span id="userEmail" class="useremail"></span><button class="topbtn" onclick="backup()">↥ Backup</button><button class="topbtn" onclick="installHelp()">⌂ Instalar</button><button class="logoutBtn" onclick="logout()">Sair</button></div></div></header>
+<header class="top"><div class="toprow"><div class="logo"><div class="mark">OC</div><div><div class="brand">OFICINA DO CELULAR</div><div class="sub">Gestão de aparelhos • V11</div></div></div><div class="userbar"><button class="topbtn" type="button" onclick="testarFirebase()">☁ Testar Firebase</button><span id="syncStatus" class="syncText"><span class="syncDot"></span>Firebase</span><span id="userEmail" class="useremail"></span><button class="topbtn" onclick="backup()">↥ Backup</button><button class="topbtn" onclick="installHelp()">⌂ Instalar</button><button class="logoutBtn" onclick="logout()">Sair</button></div></div></header>
 <main class="wrap">
 <section class="hero"><div><h1>Visão geral</h1><p>Seu estoque, reparos e oportunidades em um só lugar.</p></div><a class="primary newlink" href="#cadastro" id="newBtn">＋ Novo aparelho</a></section>
 <section class="metrics">
@@ -126,25 +101,11 @@ body.authLocked{overflow:hidden}.loginScreen{position:fixed;inset:0;z-index:999;
 <button type="button" id="delete" class="danger hidden" style="width:100%;margin-top:8px" onclick="removeItem()">Excluir aparelho</button>
 </div></section>
 
-<script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/13.0.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/13.0.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore-compat.js"></script>
 
 <script>
-window.addEventListener('error', function(e){
-  const box=document.getElementById('firebaseDiag');
-  if(box && e && e.message){
-    box.textContent='Erro do aplicativo: '+e.message;
-    box.style.display='block';
-  }
-});
-if(typeof firebase==='undefined'){
-  const box=document.getElementById('firebaseDiag');
-  if(box){
-    box.textContent='Firebase não carregou. Atualize a página e tente novamente.';
-    box.style.display='block';
-  }
-}
 const firebaseConfig = {
   apiKey: "AIzaSyDkage0tQmBdul-s18_BmqtHw6aAX0Hu6Q",
   authDomain: "oficinadocelular-gestao.firebaseapp.com",
@@ -246,26 +207,40 @@ function startFirestoreSync(){
 }
 async function login(email,password){
   $('loginError').style.display='none';
-  if(!email||!password){$('loginError').textContent='Informe e-mail e senha.';$('loginError').style.display='block';return;}
+  if(!email||!password){
+    $('loginError').textContent='Informe e-mail e senha.';
+    $('loginError').style.display='block';
+    return;
+  }
   if(authInProgress)return;
   authInProgress=true;
   const btn=document.querySelector('#loginForm button[type=submit]');
   if(btn){btn.disabled=true;btn.textContent='Entrando...';}
   try{
     const cred=await auth.signInWithEmailAndPassword(email,password);
-    // Não dependemos do onAuthStateChanged para liberar a tela.
-    // O próprio signIn confirmou a autenticação.
     currentUser=cred.user;
     $('userEmail').textContent=cred.user.email||'';
-    document.body.classList.remove('authLocked');
-    document.body.style.overflow='auto';
-    $('loginScreen').style.display='none';
     setSyncStatus('Carregando dados...',false);
-    renderAll();
-    loadData().then(()=>{renderAll();setSyncStatus('Firebase conectado',true);}).catch(e=>{
-      console.error(e);
-      showFirebaseError('Login realizado, mas houve erro ao carregar os dados: '+(e.code||'sem código')+' — '+(e.message||e));
-    });
+
+    // Só remove a tela de login depois que a interface e os dados forem carregados.
+    try{
+      await loadData();
+      renderAll();
+      document.body.classList.remove('authLocked');
+      document.body.style.overflow='auto';
+      $('loginScreen').style.display='none';
+      setSyncStatus('Firebase conectado',true);
+    }catch(loadErr){
+      console.error('Erro após autenticação:',loadErr);
+      const msg='Login aceito, mas não foi possível carregar os dados: '+(loadErr.code||'sem código')+' — '+(loadErr.message||loadErr);
+      $('loginError').textContent=msg;
+      $('loginError').style.display='block';
+      setSyncStatus('Erro ao carregar dados',false);
+      // Mantém a tela de login visível para nunca deixar uma tela preta.
+      document.body.classList.add('authLocked');
+      document.body.style.overflow='hidden';
+      $('loginScreen').style.display='grid';
+    }
   }catch(e){
     const map={
       'auth/invalid-credential':'E-mail ou senha incorretos.',
@@ -276,8 +251,7 @@ async function login(email,password){
       'auth/operation-not-allowed':'Login por e-mail e senha não está ativado no Firebase.',
       'auth/unauthorized-domain':'Este endereço não está autorizado no Firebase Authentication.'
     };
-    const msg=map[e.code]||('Não foi possível entrar: '+(e.code||'sem código')+' — '+(e.message||e));
-    $('loginError').textContent=msg;
+    $('loginError').textContent=map[e.code]||('Não foi possível entrar: '+(e.code||'sem código')+' — '+(e.message||e));
     $('loginError').style.display='block';
     console.error('Firebase Auth:',e);
   }finally{
@@ -468,27 +442,28 @@ if('serviceWorker' in navigator && location.protocol!=='file:'){
   });
 }
 $('loginForm').addEventListener('submit',e=>{e.preventDefault();login($('loginEmail').value.trim(),$('loginPassword').value);});
-auth.onAuthStateChanged(user=>{
+auth.onAuthStateChanged(async user=>{
   currentUser=user;
   const diag=$('firebaseDiag');
   if(diag){diag.style.display='none';diag.textContent='';}
   if(user){
-    // Libera a interface imediatamente após a autenticação.
-    // O carregamento do Firestore acontece em segundo plano e não pode bloquear a entrada.
     $('userEmail').textContent=user.email||'';
-    document.body.classList.remove('authLocked');
-    document.body.style.overflow='auto';
-    $('loginScreen').style.display='none';
     setSyncStatus('Carregando dados...',false);
-    renderAll();
-
-    loadData().then(()=>{
+    try{
+      await loadData();
       renderAll();
+      document.body.classList.remove('authLocked');
+      document.body.style.overflow='auto';
+      $('loginScreen').style.display='none';
       setSyncStatus('Firebase conectado',true);
-    }).catch(e=>{
-      console.error('Falha ao carregar dados:',e);
-      document.body.style.overflow='auto'; showFirebaseError('Login realizado, mas houve erro ao carregar os dados: '+(e.code||'sem código')+' — '+(e.message||e));
-    });
+    }catch(e){
+      console.error('Falha ao carregar dados após autenticação:',e);
+      document.body.classList.add('authLocked');
+      document.body.style.overflow='hidden';
+      $('loginScreen').style.display='grid';
+      $('loginError').textContent='Login realizado, mas o sistema não conseguiu carregar os dados: '+(e.code||'sem código')+' — '+(e.message||e);
+      $('loginError').style.display='block';
+    }
   }else{
     if(firestoreUnsubscribe){firestoreUnsubscribe();firestoreUnsubscribe=null;}
     firebaseReady=false;
