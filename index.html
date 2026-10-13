@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0b120f">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-180.png">
-<title>Oficina do Celular • Gestão V9</title>
+<title>Oficina do Celular • Gestão V10</title>
 <style>
 :root{--bg:#f3f6f4;--card:#fff;--ink:#142019;--muted:#718078;--line:#e1e8e3;--green:#18a957;--green2:#08783c;--dark:#0b120f;--yellow:#d69500;--blue:#2f72cf;--red:#d94444;--purple:#7655c9}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer}
@@ -38,7 +38,7 @@ body.authLocked{overflow:hidden}body.authLocked>header,body.authLocked>main,body
     </form>
   </div>
 </div>
-<header class="top"><div class="toprow"><div class="logo"><div class="mark">OC</div><div><div class="brand">OFICINA DO CELULAR</div><div class="sub">Gestão de aparelhos • V9</div></div></div><div class="userbar"><button class="topbtn" type="button" onclick="testarFirebase()">☁ Testar Firebase</button><span id="syncStatus" class="syncText"><span class="syncDot"></span>Firebase</span><span id="userEmail" class="useremail"></span><button class="topbtn" onclick="backup()">↥ Backup</button><button class="topbtn" onclick="installHelp()">⌂ Instalar</button><button class="logoutBtn" onclick="logout()">Sair</button></div></div></header>
+<header class="top"><div class="toprow"><div class="logo"><div class="mark">OC</div><div><div class="brand">OFICINA DO CELULAR</div><div class="sub">Gestão de aparelhos • V10</div></div></div><div class="userbar"><button class="topbtn" type="button" onclick="testarFirebase()">☁ Testar Firebase</button><span id="syncStatus" class="syncText"><span class="syncDot"></span>Firebase</span><span id="userEmail" class="useremail"></span><button class="topbtn" onclick="backup()">↥ Backup</button><button class="topbtn" onclick="installHelp()">⌂ Instalar</button><button class="logoutBtn" onclick="logout()">Sair</button></div></div></header>
 <main class="wrap">
 <section class="hero"><div><h1>Visão geral</h1><p>Seu estoque, reparos e oportunidades em um só lugar.</p></div><a class="primary newlink" href="#cadastro" id="newBtn">＋ Novo aparelho</a></section>
 <section class="metrics">
@@ -58,7 +58,7 @@ body.authLocked{overflow:hidden}body.authLocked>header,body.authLocked>main,body
 </section>
 <section class="panel" style="margin-top:14px"><div class="head"><h2>Estoque de aparelhos</h2><span class="muted" id="count">0 itens</span></div>
 <div class="tools"><input id="search" class="search" placeholder="🔎 Modelo ou IMEI"><button class="pill active" onclick="setFiltro('Todos')">Todos</button><button class="pill" onclick="setFiltro('Aguardando reparo')">Aguardando</button><button class="pill" onclick="setFiltro('Em reparo')">Reparo</button><button class="pill" onclick="setFiltro('Pronto para venda')">Prontos</button><button class="pill" onclick="setFiltro('Vendido')">Vendidos</button></div><div id="stock"></div></section>
-<div class="footer">Oficina do Celular • Gestão V9 • preparado para instalar na tela inicial</div>
+<div class="footer">Oficina do Celular • Gestão V10 • preparado para instalar na tela inicial</div>
 </main>
 
 <section id="cadastro" class="cadastro"><div class="sheet">
@@ -122,6 +122,7 @@ let currentUser=null, firestoreUnsubscribe=null, firebaseReady=false;
 const checkNames=['Liga / inicializa','Tela','Touch','Bateria','Carregamento','Rede / sinal','Wi‑Fi','Bluetooth','Câmeras','Áudio / microfone','Biometria / Face ID','Sensores','IMEI / conta verificados','Sem sinais de oxidação'];
 const DB_NAME='oficina_do_celular_db', DB_VERSION=2, STORE='aparelhos';
 const STORAGE_KEY='oc_v3';
+let authInProgress=false;
 let dbReady=null, data=[], filtro='Todos', photoData='';
 async function requestPersistentStorage(){
   try{
@@ -206,16 +207,42 @@ function startFirestoreSync(){
 }
 async function login(email,password){
   $('loginError').style.display='none';
-  try{await auth.signInWithEmailAndPassword(email,password);}
-  catch(e){
+  if(!email||!password){$('loginError').textContent='Informe e-mail e senha.';$('loginError').style.display='block';return;}
+  if(authInProgress)return;
+  authInProgress=true;
+  const btn=document.querySelector('#loginForm button[type=submit]');
+  if(btn){btn.disabled=true;btn.textContent='Entrando...';}
+  try{
+    const cred=await auth.signInWithEmailAndPassword(email,password);
+    // Não dependemos do onAuthStateChanged para liberar a tela.
+    // O próprio signIn confirmou a autenticação.
+    currentUser=cred.user;
+    $('userEmail').textContent=cred.user.email||'';
+    document.body.classList.remove('authLocked');
+    $('loginScreen').style.display='none';
+    setSyncStatus('Carregando dados...',false);
+    renderAll();
+    loadData().then(()=>{renderAll();setSyncStatus('Firebase conectado',true);}).catch(e=>{
+      console.error(e);
+      showFirebaseError('Login realizado, mas houve erro ao carregar os dados: '+(e.code||'sem código')+' — '+(e.message||e));
+    });
+  }catch(e){
     const map={
       'auth/invalid-credential':'E-mail ou senha incorretos.',
       'auth/invalid-email':'E-mail inválido.',
       'auth/user-disabled':'Este usuário está desativado.',
-      'auth/too-many-requests':'Muitas tentativas. Aguarde alguns minutos e tente novamente.'
+      'auth/too-many-requests':'Muitas tentativas. Aguarde alguns minutos e tente novamente.',
+      'auth/network-request-failed':'Sem conexão com o Firebase. Confira a internet e tente novamente.',
+      'auth/operation-not-allowed':'Login por e-mail e senha não está ativado no Firebase.',
+      'auth/unauthorized-domain':'Este endereço não está autorizado no Firebase Authentication.'
     };
-    $('loginError').textContent=map[e.code]||('Não foi possível entrar: '+e.message);
+    const msg=map[e.code]||('Não foi possível entrar: '+(e.code||'sem código')+' — '+(e.message||e));
+    $('loginError').textContent=msg;
     $('loginError').style.display='block';
+    console.error('Firebase Auth:',e);
+  }finally{
+    authInProgress=false;
+    if(btn){btn.disabled=false;btn.textContent='Entrar';}
   }
 }
 async function logout(){
@@ -387,7 +414,19 @@ function installHelp(){alert('No iPhone: abra o sistema pelo Safari → toque em
 function backup(){let b=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='backup-oficina-v8.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
 $('photoBtn').addEventListener('click', function(e){e.preventDefault();document.getElementById('photo').click()});
 $('search').addEventListener('input', renderStock);
-if('serviceWorker' in navigator && location.protocol!=='file:'){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}
+// Remove versões antigas do Service Worker para evitar que o Safari mantenha uma tela/login antigo.
+if('serviceWorker' in navigator && location.protocol!=='file:'){
+  window.addEventListener('load',async()=>{
+    try{
+      const regs=await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r=>r.unregister()));
+      if(window.caches){
+        const keys=await caches.keys();
+        await Promise.all(keys.filter(k=>k.startsWith('oficina-celular-')).map(k=>caches.delete(k)));
+      }
+    }catch(e){console.warn('Limpeza de cache:',e)}
+  });
+}
 $('loginForm').addEventListener('submit',e=>{e.preventDefault();login($('loginEmail').value.trim(),$('loginPassword').value);});
 auth.onAuthStateChanged(user=>{
   currentUser=user;
