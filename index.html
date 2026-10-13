@@ -24,7 +24,7 @@
 </style>
 </head>
 <body>
-<header class="top"><div class="toprow"><div class="logo"><div class="mark">OC</div><div><div class="brand">OFICINA DO CELULAR</div><div class="sub">Gestão de aparelhos • V5</div></div></div><div style="display:flex;gap:7px"><button class="topbtn" onclick="backup()">↥ Backup</button><button class="topbtn" onclick="installHelp()">⌂ Instalar</button></div></div></header>
+<header class="top"><div class="toprow"><div class="logo"><div class="mark">OC</div><div><div class="brand">OFICINA DO CELULAR</div><div class="sub">Gestão de aparelhos • V8</div></div></div><div style="display:flex;gap:7px"><button class="topbtn" onclick="backup()">↥ Backup</button><button class="topbtn" onclick="installHelp()">⌂ Instalar</button></div></div></header>
 <main class="wrap">
 <section class="hero"><div><h1>Visão geral</h1><p>Seu estoque, reparos e oportunidades em um só lugar.</p></div><a class="primary newlink" href="#cadastro" id="newBtn">＋ Novo aparelho</a></section>
 <section class="metrics">
@@ -89,7 +89,6 @@
 
 <script>
 const checkNames=['Liga / inicializa','Tela','Touch','Bateria','Carregamento','Rede / sinal','Wi‑Fi','Bluetooth','Câmeras','Áudio / microfone','Biometria / Face ID','Sensores','IMEI / conta verificados','Sem sinais de oxidação'];
-let data=[], filtro='Todos', photoData='';
 const DB_NAME='oficina_do_celular_db', DB_VERSION=1, STORE='aparelhos';
 const STORAGE_KEY='oc_v3';
 let dbReady=null, data=[], filtro='Todos', photoData='';
