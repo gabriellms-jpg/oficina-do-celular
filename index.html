@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0b120f">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-180.png">
-<title>Oficina do Celular • Gestão V10</title>
+<title>Oficina do Celular • Gestão V11</title>
 <style>
 :root{--bg:#f3f6f4;--card:#fff;--ink:#142019;--muted:#718078;--line:#e1e8e3;--green:#18a957;--green2:#08783c;--dark:#0b120f;--yellow:#d69500;--blue:#2f72cf;--red:#d94444;--purple:#7655c9}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer}
@@ -58,7 +58,7 @@ body.authLocked{overflow:hidden}body.authLocked>header,body.authLocked>main,body
 </section>
 <section class="panel" style="margin-top:14px"><div class="head"><h2>Estoque de aparelhos</h2><span class="muted" id="count">0 itens</span></div>
 <div class="tools"><input id="search" class="search" placeholder="🔎 Modelo ou IMEI"><button class="pill active" onclick="setFiltro('Todos')">Todos</button><button class="pill" onclick="setFiltro('Aguardando reparo')">Aguardando</button><button class="pill" onclick="setFiltro('Em reparo')">Reparo</button><button class="pill" onclick="setFiltro('Pronto para venda')">Prontos</button><button class="pill" onclick="setFiltro('Vendido')">Vendidos</button></div><div id="stock"></div></section>
-<div class="footer">Oficina do Celular • Gestão V10 • preparado para instalar na tela inicial</div>
+<div class="footer">Oficina do Celular • Gestão V11 • preparado para instalar na tela inicial</div>
 </main>
 
 <section id="cadastro" class="cadastro"><div class="sheet">
@@ -101,11 +101,25 @@ body.authLocked{overflow:hidden}body.authLocked>header,body.authLocked>main,body
 <button type="button" id="delete" class="danger hidden" style="width:100%;margin-top:8px" onclick="removeItem()">Excluir aparelho</button>
 </div></section>
 
-<script src="https://www.gstatic.com/firebasejs/13.0.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/13.0.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore-compat.js"></script>
 
 <script>
+window.addEventListener('error', function(e){
+  const box=document.getElementById('firebaseDiag');
+  if(box && e && e.message){
+    box.textContent='Erro do aplicativo: '+e.message;
+    box.style.display='block';
+  }
+});
+if(typeof firebase==='undefined'){
+  const box=document.getElementById('firebaseDiag');
+  if(box){
+    box.textContent='Firebase não carregou. Atualize a página e tente novamente.';
+    box.style.display='block';
+  }
+}
 const firebaseConfig = {
   apiKey: "AIzaSyDkage0tQmBdul-s18_BmqtHw6aAX0Hu6Q",
   authDomain: "oficinadocelular-gestao.firebaseapp.com",
