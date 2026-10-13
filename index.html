@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0b120f">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-180.png">
-<title>Oficina do Celular • Gestão V11</title>
+<title>Oficina do Celular • Gestão V14</title>
 <style>
 :root{--bg:#f3f6f4;--card:#fff;--ink:#142019;--muted:#718078;--line:#e1e8e3;--green:#18a957;--green2:#08783c;--dark:#0b120f;--yellow:#d69500;--blue:#2f72cf;--red:#d94444;--purple:#7655c9}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer}
@@ -38,7 +38,7 @@ body.authLocked{overflow:hidden}body.authLocked>header,body.authLocked>main,body
     </form>
   </div>
 </div>
-<header class="top"><div class="toprow"><div class="logo"><div class="mark">OC</div><div><div class="brand">OFICINA DO CELULAR</div><div class="sub">Gestão de aparelhos • V11</div></div></div><div class="userbar"><button class="topbtn" type="button" onclick="testarFirebase()">☁ Testar Firebase</button><span id="syncStatus" class="syncText"><span class="syncDot"></span>Firebase</span><span id="userEmail" class="useremail"></span><button class="topbtn" onclick="backup()">↥ Backup</button><button class="topbtn" onclick="installHelp()">⌂ Instalar</button><button class="logoutBtn" onclick="logout()">Sair</button></div></div></header>
+<header class="top"><div class="toprow"><div class="logo"><div class="mark">OC</div><div><div class="brand">OFICINA DO CELULAR</div><div class="sub">Gestão de aparelhos • V14</div></div></div><div class="userbar"><button class="topbtn" type="button" onclick="testarFirebase()">☁ Testar Firebase</button><span id="syncStatus" class="syncText"><span class="syncDot"></span>Firebase</span><span id="userEmail" class="useremail"></span><button class="topbtn" onclick="backup()">↥ Backup</button><button class="topbtn" onclick="installHelp()">⌂ Instalar</button><button class="logoutBtn" onclick="logout()">Sair</button></div></div></header>
 <main class="wrap">
 <section class="hero"><div><h1>Visão geral</h1><p>Seu estoque, reparos e oportunidades em um só lugar.</p></div><a class="primary newlink" href="#cadastro" id="newBtn">＋ Novo aparelho</a></section>
 <section class="metrics">
@@ -58,7 +58,7 @@ body.authLocked{overflow:hidden}body.authLocked>header,body.authLocked>main,body
 </section>
 <section class="panel" style="margin-top:14px"><div class="head"><h2>Estoque de aparelhos</h2><span class="muted" id="count">0 itens</span></div>
 <div class="tools"><input id="search" class="search" placeholder="🔎 Modelo ou IMEI"><button class="pill active" onclick="setFiltro('Todos')">Todos</button><button class="pill" onclick="setFiltro('Aguardando reparo')">Aguardando</button><button class="pill" onclick="setFiltro('Em reparo')">Reparo</button><button class="pill" onclick="setFiltro('Pronto para venda')">Prontos</button><button class="pill" onclick="setFiltro('Vendido')">Vendidos</button></div><div id="stock"></div></section>
-<div class="footer">Oficina do Celular • Gestão V11 • preparado para instalar na tela inicial</div>
+<div class="footer">Oficina do Celular • Gestão V14 • preparado para instalar na tela inicial</div>
 </main>
 
 <section id="cadastro" class="cadastro"><div class="sheet">
@@ -101,9 +101,9 @@ body.authLocked{overflow:hidden}body.authLocked>header,body.authLocked>main,body
 <button type="button" id="delete" class="danger hidden" style="width:100%;margin-top:8px" onclick="removeItem()">Excluir aparelho</button>
 </div></section>
 
-<script src="https://www.gstatic.com/firebasejs/13.0.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/13.0.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.9.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.9.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore-compat.js"></script>
 
 <script>
 const firebaseConfig = {
@@ -217,30 +217,8 @@ async function login(email,password){
   const btn=document.querySelector('#loginForm button[type=submit]');
   if(btn){btn.disabled=true;btn.textContent='Entrando...';}
   try{
-    const cred=await auth.signInWithEmailAndPassword(email,password);
-    currentUser=cred.user;
-    $('userEmail').textContent=cred.user.email||'';
-    setSyncStatus('Carregando dados...',false);
-
-    // Só remove a tela de login depois que a interface e os dados forem carregados.
-    try{
-      await loadData();
-      renderAll();
-      document.body.classList.remove('authLocked');
-      document.body.style.overflow='auto';
-      $('loginScreen').style.display='none';
-      setSyncStatus('Firebase conectado',true);
-    }catch(loadErr){
-      console.error('Erro após autenticação:',loadErr);
-      const msg='Login aceito, mas não foi possível carregar os dados: '+(loadErr.code||'sem código')+' — '+(loadErr.message||loadErr);
-      $('loginError').textContent=msg;
-      $('loginError').style.display='block';
-      setSyncStatus('Erro ao carregar dados',false);
-      // Mantém a tela de login visível para nunca deixar uma tela preta.
-      document.body.classList.add('authLocked');
-      document.body.style.overflow='hidden';
-      $('loginScreen').style.display='grid';
-    }
+    await auth.signInWithEmailAndPassword(email,password);
+    // onAuthStateChanged is responsible for opening the app.
   }catch(e){
     const map={
       'auth/invalid-credential':'E-mail ou senha incorretos.',
@@ -251,7 +229,7 @@ async function login(email,password){
       'auth/operation-not-allowed':'Login por e-mail e senha não está ativado no Firebase.',
       'auth/unauthorized-domain':'Este endereço não está autorizado no Firebase Authentication.'
     };
-    $('loginError').textContent=map[e.code]||('Não foi possível entrar: '+(e.code||'sem código')+' — '+(e.message||e));
+    $('loginError').textContent=map[e.code]||('Não foi possível entrar: '+(e.code||'sem código')+' — '+(e.message||e.message||e));
     $('loginError').style.display='block';
     console.error('Firebase Auth:',e);
   }finally{
@@ -442,28 +420,31 @@ if('serviceWorker' in navigator && location.protocol!=='file:'){
   });
 }
 $('loginForm').addEventListener('submit',e=>{e.preventDefault();login($('loginEmail').value.trim(),$('loginPassword').value);});
-auth.onAuthStateChanged(async user=>{
+auth.onAuthStateChanged(user=>{
   currentUser=user;
   const diag=$('firebaseDiag');
   if(diag){diag.style.display='none';diag.textContent='';}
+
   if(user){
     $('userEmail').textContent=user.email||'';
-    setSyncStatus('Carregando dados...',false);
-    try{
-      await loadData();
+    document.body.classList.remove('authLocked');
+    document.body.style.overflow='auto';
+    $('loginScreen').style.display='none';
+    renderAll();
+    setSyncStatus('Conectando ao Firebase...',false);
+
+    // Firestore is background work. It must never block the login screen.
+    const timeout = new Promise((_,reject)=>
+      setTimeout(()=>reject(new Error('Tempo esgotado ao carregar dados do Firestore.')),8000)
+    );
+    Promise.race([loadData(),timeout]).then(()=>{
       renderAll();
-      document.body.classList.remove('authLocked');
-      document.body.style.overflow='auto';
-      $('loginScreen').style.display='none';
       setSyncStatus('Firebase conectado',true);
-    }catch(e){
-      console.error('Falha ao carregar dados após autenticação:',e);
-      document.body.classList.add('authLocked');
-      document.body.style.overflow='hidden';
-      $('loginScreen').style.display='grid';
-      $('loginError').textContent='Login realizado, mas o sistema não conseguiu carregar os dados: '+(e.code||'sem código')+' — '+(e.message||e);
-      $('loginError').style.display='block';
-    }
+    }).catch(e=>{
+      console.error('Falha ao carregar dados:',e);
+      showFirebaseError('Login realizado. Firebase: '+(e.code||'')+' — '+(e.message||e));
+      renderAll();
+    });
   }else{
     if(firestoreUnsubscribe){firestoreUnsubscribe();firestoreUnsubscribe=null;}
     firebaseReady=false;
