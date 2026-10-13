@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0b120f">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-180.png">
-<title>Oficina do Celular • Gestão V8</title>
+<title>Oficina do Celular • Gestão V9</title>
 <style>
 :root{--bg:#f3f6f4;--card:#fff;--ink:#142019;--muted:#718078;--line:#e1e8e3;--green:#18a957;--green2:#08783c;--dark:#0b120f;--yellow:#d69500;--blue:#2f72cf;--red:#d94444;--purple:#7655c9}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer}
@@ -24,7 +24,7 @@
 </style>
 </head>
 <body>
-<header class="top"><div class="toprow"><div class="logo"><div class="mark">OC</div><div><div class="brand">OFICINA DO CELULAR</div><div class="sub">Gestão de aparelhos • V8</div></div></div><div style="display:flex;gap:7px"><button class="topbtn" onclick="backup()">↥ Backup</button><button class="topbtn" onclick="installHelp()">⌂ Instalar</button></div></div></header>
+<header class="top"><div class="toprow"><div class="logo"><div class="mark">OC</div><div><div class="brand">OFICINA DO CELULAR</div><div class="sub">Gestão de aparelhos • V9</div></div></div><div style="display:flex;gap:7px"><button class="topbtn" onclick="backup()">↥ Backup</button><button class="topbtn" onclick="installHelp()">⌂ Instalar</button></div></div></header>
 <main class="wrap">
 <section class="hero"><div><h1>Visão geral</h1><p>Seu estoque, reparos e oportunidades em um só lugar.</p></div><a class="primary newlink" href="#cadastro" id="newBtn">＋ Novo aparelho</a></section>
 <section class="metrics">
@@ -44,7 +44,7 @@
 </section>
 <section class="panel" style="margin-top:14px"><div class="head"><h2>Estoque de aparelhos</h2><span class="muted" id="count">0 itens</span></div>
 <div class="tools"><input id="search" class="search" placeholder="🔎 Modelo ou IMEI"><button class="pill active" onclick="setFiltro('Todos')">Todos</button><button class="pill" onclick="setFiltro('Aguardando reparo')">Aguardando</button><button class="pill" onclick="setFiltro('Em reparo')">Reparo</button><button class="pill" onclick="setFiltro('Pronto para venda')">Prontos</button><button class="pill" onclick="setFiltro('Vendido')">Vendidos</button></div><div id="stock"></div></section>
-<div class="footer">Oficina do Celular • Gestão V8 • preparado para instalar na tela inicial</div>
+<div class="footer">Oficina do Celular • Gestão V9 • preparado para instalar na tela inicial</div>
 </main>
 
 <section id="cadastro" class="cadastro"><div class="sheet">
@@ -89,9 +89,17 @@
 
 <script>
 const checkNames=['Liga / inicializa','Tela','Touch','Bateria','Carregamento','Rede / sinal','Wi‑Fi','Bluetooth','Câmeras','Áudio / microfone','Biometria / Face ID','Sensores','IMEI / conta verificados','Sem sinais de oxidação'];
-const DB_NAME='oficina_do_celular_db', DB_VERSION=1, STORE='aparelhos';
+const DB_NAME='oficina_do_celular_db', DB_VERSION=2, STORE='aparelhos';
 const STORAGE_KEY='oc_v3';
 let dbReady=null, data=[], filtro='Todos', photoData='';
+async function requestPersistentStorage(){
+  try{
+    if(navigator.storage && navigator.storage.persist){
+      await navigator.storage.persist();
+    }
+  }catch(_){}
+}
+
 const $=id=>document.getElementById(id), brl=v=>(Number(v)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}), num=v=>Number(String(v||'').replace(/[R$\s.]/g,'').replace(',','.'))||0;
 
 function openDB(){
@@ -143,9 +151,10 @@ async function persist(){
   let idbOK=false, localOK=false;
   try{await idbReplace(data);idbOK=true}catch(_){}
   try{localSet(data);localOK=true}catch(_){}
-  if(!idbOK&&!localOK) alert('O iPhone não conseguiu gravar os dados.');
+  if(!idbOK&&!localOK) alert('Não foi possível gravar os dados neste dispositivo.');
 }
 async function loadData(){
+  await requestPersistentStorage();
   let idb=[], local=[];
   try{idb=await idbGetAll()}catch(_){}
   try{local=localGet()}catch(_){}
@@ -187,7 +196,8 @@ function openModal(){location.hash='cadastro'}
 function closeModal(){location.hash=''}
 function edit(id){let x=data.find(a=>a.id===id);if(!x)return;clearForm();$('title').textContent='Editar aparelho';$('delete').classList.remove('hidden');$('id').value=x.id;$('modelo').value=x.modelo;$('imei').value=x.imei;$('origem').value=x.origem;$('status').value=x.status;$('data').value=x.data;$('vendaInput').value=x.venda;$('compra').value=x.compra;$('pecas').value=x.pecas;$('outros').value=x.outros;$('taxas').value=x.taxas;$('defeito').value=x.defeito;$('acao').value=x.acao;photoData=x.photo||'';if(photoData)$('photoPreview').src=photoData;renderChecks(x.checks||[]);calc();location.hash='cadastro'}
 window.testarArmazenamento=testarArmazenamento;
-async function save(){let checks=[...document.querySelectorAll('[data-check]')].map(c=>c.checked),x={id:$('id').value||Date.now().toString(),modelo:$('modelo').value.trim(),imei:$('imei').value.trim(),origem:$('origem').value,status:$('status').value,data:$('data').value||new Date().toISOString().slice(0,10),venda:num($('vendaInput').value),compra:num($('compra').value),pecas:num($('pecas').value),outros:num($('outros').value),taxas:num($('taxas').value),defeito:$('defeito').value.trim(),acao:$('acao').value.trim(),checks,photo:photoData};if(!x.modelo)return alert('Informe o modelo.');let i=data.findIndex(a=>a.id===x.id);if(i>=0)data[i]=x;else data.push(x);await persist();location.hash='';renderAll()}
+async function save(){
+  await requestPersistentStorage();let checks=[...document.querySelectorAll('[data-check]')].map(c=>c.checked),x={id:$('id').value||Date.now().toString(),modelo:$('modelo').value.trim(),imei:$('imei').value.trim(),origem:$('origem').value,status:$('status').value,data:$('data').value||new Date().toISOString().slice(0,10),venda:num($('vendaInput').value),compra:num($('compra').value),pecas:num($('pecas').value),outros:num($('outros').value),taxas:num($('taxas').value),defeito:$('defeito').value.trim(),acao:$('acao').value.trim(),checks,photo:photoData};if(!x.modelo)return alert('Informe o modelo.');let i=data.findIndex(a=>a.id===x.id);if(i>=0)data[i]=x;else data.push(x);await persist();location.hash='';renderAll()}
 async function removeItem(){if(confirm('Excluir este aparelho?')){let id=$('id').value;data=data.filter(x=>x.id!==id);await idbDelete(id).catch(()=>persist());location.hash='';renderAll()}}
 function clearPhoto(){photoData='';$('photoPreview').removeAttribute('src');$('photo').value=''}
 $('photo').addEventListener('change',e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{let im=new Image();im.onload=()=>{let c=document.createElement('canvas'),max=700,scale=Math.min(1,max/Math.max(im.width,im.height));c.width=im.width*scale;c.height=im.height*scale;c.getContext('2d').drawImage(im,0,0,c.width,c.height);photoData=c.toDataURL('image/jpeg',.72);$('photoPreview').src=photoData};im.src=r.result};r.readAsDataURL(f)})

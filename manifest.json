@@ -1,6 +1,6 @@
 {
-  "name": "Oficina do Celular - Gestão",
-  "short_name": "Oficina Celular",
+  "name": "Oficina do Celular - V9",
+  "short_name": "Oficina V9",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f3f6f4",
@@ -8,7 +8,17 @@
   "lang": "pt-BR",
   "description": "Controle de aparelhos, reparos, custos e oportunidades da Oficina do Celular.",
   "icons": [
-    {"src":"icon-180.png","sizes":"180x180","type":"image/png","purpose":"any maskable"},
-    {"src":"icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}
+    {
+      "src": "icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
   ]
 }
